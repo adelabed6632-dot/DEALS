@@ -385,7 +385,7 @@
       <button class="cat-btn" onclick="filterCategory('أحذية', this)">أحذية</button>
     </div>
 
-    <!-- فلتر السعر (أقل من) حتى 50,000 ج.م -->
+    <!-- فلتر السعر (أقل من) -->
     <div class="price-filter">
       <label for="priceSelect">فلتر السعر (أقل من):</label>
       <select id="priceSelect" onchange="changePriceFilter()">
@@ -485,7 +485,8 @@
       grid.innerHTML = "";
 
       let filtered = deals.filter(deal => {
-        let matchCat = (currentCategory === "all" || deal.category === currentCategory);
+        let dealCat = (deal.category || "").trim();
+        let matchCat = (currentCategory === "all" || dealCat === currentCategory);
         let rawPrice = parseInt(String(deal.newPrice).replace(/[^\d]/g, "")) || 0;
         let matchMaxPrice = (rawPrice <= maxPriceLimit);
 
@@ -493,7 +494,7 @@
       });
 
       if (filtered.length === 0) {
-        grid.innerHTML = `<div class="no-results">عذراً، لا توجد عروض مطابقة لهذا الفلتر أو القسم حالياً.</div>`;
+        grid.innerHTML = `<div class="no-results">عذراً، لا توجد عروض مطابقة لهذا الفلتر أو القسم حالياً. جاري تحديثها قريباً.</div>`;
         countBadge.innerText = `● 0 عرض متاح`;
         return;
       }
