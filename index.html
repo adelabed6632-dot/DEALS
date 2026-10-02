@@ -4,6 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Deals Radar | أقوى صفقات مصر المحدثة</title>
+
+  <!-- Google tag (gtag.js) - إحصائيات جوجل -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-Y4DM7FZ951"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-Y4DM7FZ951');
+  </script>
+
   <style>
     :root {
       --primary: #2563eb;
@@ -95,7 +106,7 @@
       border-color: var(--primary);
     }
 
-    /* صندوق فلتر السعر الجديد */
+    /* صندوق فلتر السعر */
     .price-filter {
       display: flex;
       align-items: center;
@@ -317,12 +328,8 @@
 
       grid.innerHTML = "";
 
-      // تصفية حسب القسم وحسب السعر الأدنى المحدد
       let filtered = deals.filter(deal => {
         let matchCat = (currentCategory === "all" || deal.category === currentCategory);
-        let matchPrice = (deal.discount_val >= 0); // شرط أساسي
-        
-        // استخراج القيمة الرقمية للسعر الجديد للمقارنة
         let rawPrice = parseInt(String(deal.newPrice).replace(/[^\d]/g, "")) || 0;
         let matchMinPrice = (rawPrice >= minPriceLimit);
 
@@ -359,12 +366,11 @@
       });
     }
 
-    // تشغيل العرض عند تحميل الملف
     window.onload = () => {
       renderDeals();
     };
 
-    // التحديث التلقائي كل 30 دقيقة دون إعادة تحميل الصفحة
+    // التحديث التلقائي كل 30 دقيقة
     setInterval(() => {
       const oldScript = document.getElementById("dealsScript");
       if (oldScript) oldScript.remove();
@@ -374,7 +380,6 @@
       newScript.src = "deals.js?t=" + new Date().getTime();
       newScript.onload = () => {
         renderDeals();
-        console.log("تم تحديث شاشة العروض تلقائياً!");
       };
       document.body.appendChild(newScript);
     }, 1800000);
