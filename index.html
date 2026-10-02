@@ -249,7 +249,7 @@
       background: var(--primary-dark);
     }
 
-    /* تصميم نافذة تفاصيل المنتج المنبثقة (Modal) */
+    /* نافذة التفاصيل */
     .modal-overlay {
       position: fixed;
       top: 0;
@@ -274,12 +274,6 @@
       display: flex;
       flex-direction: column;
       position: relative;
-      animation: fadeIn 0.2s ease-in-out;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: scale(0.95); }
-      to { opacity: 1; transform: scale(1); }
     }
 
     .modal-header {
@@ -378,29 +372,31 @@
   </header>
 
   <div class="controls-container">
+    <!-- الأقسام المحدثة -->
     <div class="categories" id="categoryButtons">
       <button class="cat-btn active" onclick="filterCategory('all', this)">الكل</button>
+      <button class="cat-btn" onclick="filterCategory('سوبرماركت', this)">سوبرماركت 🛒</button>
       <button class="cat-btn" onclick="filterCategory('هواتف', this)">هواتف</button>
       <button class="cat-btn" onclick="filterCategory('أجهزة كهربائية', this)">أجهزة كهربائية</button>
       <button class="cat-btn" onclick="filterCategory('شاشات', this)">شاشات</button>
       <button class="cat-btn" onclick="filterCategory('إلكترونيات', this)">إلكترونيات</button>
+      <button class="cat-btn" onclick="filterCategory('ملابس حريمي', this)">ملابس حريمي 👗</button>
+      <button class="cat-btn" onclick="filterCategory('ملابس رجالي', this)">ملابس رجالي 👔</button>
       <button class="cat-btn" onclick="filterCategory('أحذية', this)">أحذية</button>
-      <button class="cat-btn" onclick="filterCategory('ملابس', this)">ملابس</button>
     </div>
 
-    <!-- فلتر الأسعار الجديد المحدث -->
+    <!-- فلتر السعر (أقل من) حتى 50,000 ج.م -->
     <div class="price-filter">
-      <label for="priceSelect">فلتر السعر (أكثر من):</label>
+      <label for="priceSelect">فلتر السعر (أقل من):</label>
       <select id="priceSelect" onchange="changePriceFilter()">
-        <option value="0">كل الأسعار</option>
-        <option value="200">200 ج.م</option>
-        <option value="300">300 ج.م</option>
-        <option value="400">400 ج.م</option>
-        <option value="500">500 ج.م</option>
-        <option value="1000">1,000 ج.م</option>
-        <option value="2000">2,000 ج.م</option>
-        <option value="5000">5,000 ج.م</option>
-        <option value="10000">10,000 ج.م</option>
+        <option value="999999">كل الأسعار (بدون حد)</option>
+        <option value="500">أقل من 500 ج.م</option>
+        <option value="1000">أقل من 1,000 ج.م</option>
+        <option value="2000">أقل من 2,000 ج.م</option>
+        <option value="5000">أقل من 5,000 ج.م</option>
+        <option value="10000">أقل من 10,000 ج.م</option>
+        <option value="20000">أقل من 20,000 ج.م</option>
+        <option value="50000">أقل من 50,000 ج.م</option>
       </select>
     </div>
   </div>
@@ -432,7 +428,7 @@
           </div>
         </div>
         <p style="color: var(--text-muted); font-size: 0.9rem;">
-          💡 تم فحص هذا العرض والتأكد من توفره في المتاجر المصرية. اضغط الزر أدناه للانتقال لصفحة الشراء الرسمية مع تطبيق الخصم.
+          💡 تم فحص هذا العرض والتأكد من توفره في المتاجر المصرية. اضغط الزر أدناه للانتقال لصفحة الشراء الرسمية.
         </p>
       </div>
       <div class="modal-footer">
@@ -444,7 +440,7 @@
   <script id="dealsScript" src="deals.js?t=1"></script>
   <script>
     let currentCategory = "all";
-    let minPriceLimit = 0;
+    let maxPriceLimit = 999999;
     const grid = document.getElementById("dealsGrid");
     const countBadge = document.getElementById("dealsCountBadge");
 
@@ -456,7 +452,7 @@
     }
 
     function changePriceFilter() {
-      minPriceLimit = parseInt(document.getElementById("priceSelect").value) || 0;
+      maxPriceLimit = parseInt(document.getElementById("priceSelect").value) || 999999;
       renderDeals();
     }
 
@@ -465,7 +461,7 @@
       document.getElementById("modalImg").src = deal.image;
       document.getElementById("modalTitle").innerText = deal.title;
       document.getElementById("modalNewPrice").innerText = deal.newPrice;
-      document.getElementById("modalOldPrice").innerText = deal.oldOldPrice || deal.oldPrice;
+      document.getElementById("modalOldPrice").innerText = deal.oldPrice;
       document.getElementById("modalBuyBtn").href = deal.productUrl;
       document.getElementById("productModal").style.display = "flex";
     }
@@ -491,12 +487,13 @@
       let filtered = deals.filter(deal => {
         let matchCat = (currentCategory === "all" || deal.category === currentCategory);
         let rawPrice = parseInt(String(deal.newPrice).replace(/[^\d]/g, "")) || 0;
-        let matchMinPrice = (rawPrice >= minPriceLimit);
-        return matchCat && matchMinPrice;
+        let matchMaxPrice = (rawPrice <= maxPriceLimit);
+
+        return matchCat && matchMaxPrice;
       });
 
       if (filtered.length === 0) {
-        grid.innerHTML = `<div class="no-results">عذراً، لا توجد عروض تطابق هذا الفلتر حالياً. جرب اختيار سعر أقل أو قسم آخر.</div>`;
+        grid.innerHTML = `<div class="no-results">عذراً، لا توجد عروض مطابقة لهذا الفلتر أو القسم حالياً.</div>`;
         countBadge.innerText = `● 0 عرض متاح`;
         return;
       }
@@ -506,11 +503,10 @@
       filtered.forEach(deal => {
         const card = document.createElement("div");
         card.className = "card";
-        // عند الضغط على الكارت، يفتح نافذة التفاصيل الداخلية بدلاً من التوجيه الخارجي المباشر
         card.onclick = () => openModal(deal);
 
         card.innerHTML = `
-          <span class="span discount-tag">خصم ${deal.discount}</span>
+          <span class="discount-tag">خصم ${deal.discount}</span>
           <span class="store-tag">${deal.store}</span>
           <img src="${deal.image}" alt="${deal.title}" loading="lazy">
           <div class="card-body">
