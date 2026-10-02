@@ -2,33 +2,34 @@ name: Auto Update Deals
 
 on:
   schedule:
-    - cron: '*/30 * * * *' # تشغيل السحب كل نصف ساعة
-  workflow_dispatch:
+    # تشغيل تلقائي كل 30 دقيقة في السحابة
+    - cron: '*/30 * * * *'
+  workflow_dispatch: # يتيح التشغيل اليدوي بضغطة زر عند الحاجة
 
 jobs:
   scrape-and-update:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: write # صلاحية حفظ وتحديث ملف deals.js
 
     steps:
-      - name: سحب ملفات المشروع
+      - name: سحب ملفات المشروع من المستودع
         uses: actions/checkout@v4
 
-      - name: تجهيز بايثون
+      - name: إعداد بيئة بايثون 3.11
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      - name: تثبيت المتطلبات والمتصفح
+      - name: تثبيت المكتبات والمتصفح الافتراضي
         run: |
           pip install -r requirements.txt
           playwright install --with-deps chromium
 
-      - name: تشغيل الروبوت وتحديث العروض
+      - name: تشغيل الروبوت واستخراج الصفقات
         run: python bot.py
 
-      - name: حفظ ملف deals.js ونشره للموقع
+      - name: حفظ وتحديث ملف deals.js على الموقع
         run: |
           git config --global user.name 'DealsBot'
           git config --global user.email 'bot@deals.local'
