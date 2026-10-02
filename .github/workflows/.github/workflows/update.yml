@@ -2,15 +2,15 @@ name: Auto Update Deals
 
 on:
   schedule:
-    # تشغيل تلقائي كل 30 دقيقة في السحابة
     - cron: '*/30 * * * *'
-  workflow_dispatch: # يتيح التشغيل اليدوي بضغطة زر عند الحاجة
+  workflow_dispatch:
 
 jobs:
   scrape-and-update:
+  
     runs-on: ubuntu-latest
     permissions:
-      contents: write # صلاحية حفظ وتحديث ملف deals.js
+      contents: write
 
     steps:
       - name: سحب ملفات المشروع من المستودع
