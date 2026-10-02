@@ -3,177 +3,381 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>رادار الصفقات الكبرى | عروض مصر</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&display=swap" rel="stylesheet">
+  <title>Deals Radar | أقوى صفقات مصر المحدثة</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; }
-    body { background-color: #0b0f19; color: #f1f5f9; min-height: 100vh; }
-    
-    header { background: #111827; padding: 22px 15px; text-align: center; border-bottom: 1px solid #1f2937; }
-    header h1 { font-size: 26px; font-weight: 900; }
-    header h1 span { color: #ef4444; }
-    .badge-live { display: inline-block; margin-top: 8px; background: rgba(34, 197, 94, 0.12); color: #4ade80; border: 1px solid #22c55e; padding: 4px 14px; border-radius: 20px; font-size: 13px; font-weight: 700; }
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --bg-color: #f8fafc;
+      --card-bg: #ffffff;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --accent: #ef4444;
+      --border: #e2e8f0;
+    }
 
-    .container { max-width: 1200px; margin: 25px auto; padding: 0 15px; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
 
-    /* شريط الأقسام */
-    .categories-bar { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 12px; margin-bottom: 25px; scrollbar-width: thin; }
-    .cat-btn { background: #1e293b; color: #cbd5e1; border: 1px solid #334155; padding: 9px 18px; border-radius: 25px; font-size: 14px; font-weight: 700; cursor: pointer; white-space: nowrap; transition: 0.2s; }
-    .cat-btn:hover { background: #334155; color: #fff; }
-    .cat-btn.active { background: #ef4444; color: #fff; border-color: #ef4444; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3); }
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      line-height: 1.6;
+    }
 
-    /* شبكة العروض */
-    .deals-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; }
-    .card { background: #111827; border: 1px solid #1f2937; border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; position: relative; cursor: pointer; transition: transform 0.2s, border-color 0.2s; }
-    .card:hover { transform: translateY(-5px); border-color: #ef4444; }
-    
-    .discount-tag { position: absolute; top: 10px; right: 10px; background: #ef4444; color: white; font-weight: 800; font-size: 12px; padding: 3px 8px; border-radius: 6px; }
-    .store-tag { position: absolute; top: 10px; left: 10px; background: #1e293b; color: #38bdf8; font-size: 11px; font-weight: 700; padding: 3px 6px; border-radius: 6px; border: 1px solid #334155; }
-    .card img { width: 100%; height: 190px; object-fit: contain; background: #ffffff; padding: 10px; }
-    .card-body { padding: 14px; display: flex; flex-direction: column; flex-grow: 1; }
-    .card-title { font-size: 14px; margin-bottom: 10px; line-height: 1.4; height: 40px; overflow: hidden; color: #e2e8f0; }
-    .prices { display: flex; align-items: baseline; gap: 8px; margin-top: auto; margin-bottom: 10px; }
-    .new-price { font-size: 19px; font-weight: 800; color: #38bdf8; }
-    .old-price { font-size: 13px; color: #64748b; text-decoration: line-through; }
-    .view-btn { text-align: center; background: #1e293b; color: #f8fafc; padding: 7px; border-radius: 8px; font-size: 12px; font-weight: 700; }
-    .card:hover .view-btn { background: #ef4444; }
+    header {
+      background: linear-gradient(135deg, #1e293b, #0f172a);
+      color: white;
+      padding: 25px 20px;
+      text-align: center;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
 
-    /* تفاصيل المنتج */
-    #productView { display: none; }
-    .back-btn { background: none; border: none; color: #38bdf8; font-size: 16px; font-weight: 800; cursor: pointer; margin-bottom: 20px; display: inline-flex; align-items: center; gap: 6px; }
-    .product-box { background: #111827; border: 1px solid #1f2937; border-radius: 20px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-    @media(min-width: 768px) { .product-box { flex-direction: row; } }
-    .image-side { flex: 1; background: #fff; padding: 30px; display: flex; align-items: center; justify-content: center; }
-    .image-side img { max-width: 100%; max-height: 380px; object-fit: contain; }
-    .details-side { flex: 1.2; padding: 35px; display: flex; flex-direction: column; }
-    .store-badge { display: inline-block; background: #1e293b; color: #38bdf8; padding: 5px 12px; border-radius: 6px; font-size: 13px; font-weight: 800; margin-bottom: 12px; }
-    .product-title { font-size: 22px; font-weight: 800; line-height: 1.5; margin-bottom: 15px; color: #fff; }
-    .price-box { display: flex; align-items: baseline; gap: 15px; margin: 15px 0; }
-    .new-p { font-size: 32px; font-weight: 900; color: #38bdf8; }
-    .old-p { font-size: 18px; color: #64748b; text-decoration: line-through; }
-    .disc-tag { background: #ef4444; color: white; padding: 4px 10px; border-radius: 6px; font-weight: 800; font-size: 14px; }
-    .stock-box { background: rgba(245, 158, 11, 0.1); border: 1px solid #f59e0b; color: #f59e0b; padding: 10px 15px; border-radius: 10px; font-weight: 700; margin-bottom: 20px; }
-    .description { background: #1e293b; padding: 15px; border-radius: 10px; color: #cbd5e1; font-size: 14px; line-height: 1.7; margin-bottom: 25px; }
-    .buy-btn { display: block; text-align: center; background: #ef4444; color: white; text-decoration: none; padding: 16px; border-radius: 12px; font-size: 19px; font-weight: 900; box-shadow: 0 5px 20px rgba(239, 68, 68, 0.4); transition: 0.2s; }
-    .buy-btn:hover { background: #dc2626; }
+    header h1 {
+      font-size: 2rem;
+      margin-bottom: 5px;
+    }
+
+    header h1 span {
+      color: #38bdf8;
+    }
+
+    .badge-live {
+      display: inline-block;
+      background: rgba(16, 185, 129, 0.2);
+      color: #34d399;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-top: 10px;
+    }
+
+    .controls-container {
+      max-width: 1200px;
+      margin: 20px auto;
+      padding: 0 15px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+    }
+
+    /* أزرار الأقسام */
+    .categories {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 5px;
+      flex-wrap: wrap;
+    }
+
+    .cat-btn {
+      background: white;
+      border: 1px solid var(--border);
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      transition: all 0.2s ease;
+    }
+
+    .cat-btn:hover, .cat-btn.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    /* صندوق فلتر السعر الجديد */
+    .price-filter {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: white;
+      padding: 6px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+
+    .price-filter label {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .price-filter select {
+      padding: 5px 10px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      outline: none;
+      font-size: 0.9rem;
+      background: #f8fafc;
+      color: var(--text-main);
+      cursor: pointer;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto 40px auto;
+      padding: 0 15px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+      transition: transform 0.2s, box-shadow 0.2s;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
+    }
+
+    .discount-tag {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: var(--accent);
+      color: white;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      z-index: 2;
+    }
+
+    .store-tag {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(15, 23, 42, 0.75);
+      color: white;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      backdrop-filter: blur(4px);
+      z-index: 2;
+    }
+
+    .card img {
+      width: 100%;
+      height: 200px;
+      object-fit: contain;
+      padding: 15px;
+      background: #fff;
+    }
+
+    .card-body {
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+    }
+
+    .card-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: var(--text-main);
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      height: 2.8em;
+    }
+
+    .prices {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: auto;
+      margin-bottom: 15px;
+    }
+
+    .new-price {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #059669;
+    }
+
+    .old-price {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-decoration: line-through;
+    }
+
+    .view-btn {
+      background: var(--primary);
+      color: white;
+      text-align: center;
+      padding: 10px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: background 0.2s;
+    }
+
+    .card:hover .view-btn {
+      background: var(--primary-dark);
+    }
+
+    .no-results {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 40px;
+      color: var(--text-muted);
+      font-size: 1.1rem;
+    }
   </style>
 </head>
 <body>
 
   <header>
-    <h1>⚡ رادار <span>الخصومات الكبرى</span></h1>
-    <div class="badge-live" id="dealsCountBadge">● جاري تحميل الصفقات...</div>
+    <h1>⚡ Deals <span>Radar</span></h1>
+    <div class="badge-live" id="dealsCountBadge">● يتم تحديث عروض مصر تلقائياً</div>
   </header>
 
-  <div class="container">
-    <div id="homeView">
-      <!-- أزرار التصنيفات المنفصلة -->
-      <div class="categories-bar">
-        <button class="cat-btn active" data-cat="all">الكل</button>
-        <button class="cat-btn" data-cat="هواتف">📱 تليفونات وهواتف</button>
-        <button class="cat-btn" data-cat="أجهزة كهربائية">🔌 أجهزة كهربائية ومنزلية</button>
-        <button class="cat-btn" data-cat="شاشات">📺 شاشات وتلفزيونات</button>
-        <button class="cat-btn" data-cat="إلكترونيات">💻 إلكترونيات ولابتوب</button>
-        <button class="cat-btn" data-cat="أحذية">👟 أحذية رياضية وكلاسيك</button>
-        <button class="cat-btn" data-cat="ملابس">👕 أزياء وملابس</button>
-      </div>
-      <div class="deals-grid" id="dealsGrid"></div>
+  <div class="controls-container">
+    <!-- الأقسام -->
+    <div class="categories" id="categoryButtons">
+      <button class="cat-btn active" onclick="filterCategory('all', this)">الكل</button>
+      <button class="cat-btn" onclick="filterCategory('هواتف', this)">هواتف</button>
+      <button class="cat-btn" onclick="filterCategory('أجهزة كهربائية', this)">أجهزة كهربائية</button>
+      <button class="cat-btn" onclick="filterCategory('شاشات', this)">شاشات</button>
+      <button class="cat-btn" onclick="filterCategory('إلكترونيات', this)">إلكترونيات</button>
+      <button class="cat-btn" onclick="filterCategory('أحذية', this)">أحذية</button>
+      <button class="cat-btn" onclick="filterCategory('ملابس', this)">ملابس</button>
     </div>
 
-    <div id="productView">
-      <button class="back-btn" onclick="showHome()">→ العودة لكل العروض</button>
-      <div class="product-box" id="productDetails"></div>
+    <!-- فلتر السعر -->
+    <div class="price-filter">
+      <label for="priceSelect">فلتر السعر (أكثر من):</label>
+      <select id="priceSelect" onchange="changePriceFilter()">
+        <option value="0">كل الأسعار</option>
+        <option value="500">500 ج.م</option>
+        <option value="1000">1,000 ج.م</option>
+        <option value="3000">3,000 ج.م</option>
+        <option value="5000">5,000 ج.م</option>
+        <option value="10000">10,000 ج.م</option>
+        <option value="20000">20,000 ج.م</option>
+      </select>
     </div>
   </div>
 
-  <script src="deals.js"></script>
+  <div class="container">
+    <div class="grid" id="dealsGrid">
+      <!-- ستعرض المنتجات هنا ديناميكياً -->
+    </div>
+  </div>
+
+  <script id="dealsScript" src="deals.js?t=1"></script>
   <script>
-    const grid = document.getElementById("dealsGrid");
-    const homeView = document.getElementById("homeView");
-    const productView = document.getElementById("productView");
-    const productDetails = document.getElementById("productDetails");
-    const catButtons = document.querySelectorAll(".cat-btn");
-    const countBadge = document.getElementById("dealsCountBadge");
     let currentCategory = "all";
+    let minPriceLimit = 0;
+    const grid = document.getElementById("dealsGrid");
+    const countBadge = document.getElementById("dealsCountBadge");
+
+    function filterCategory(cat, btn) {
+      currentCategory = cat;
+      document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderDeals();
+    }
+
+    function changePriceFilter() {
+      minPriceLimit = parseInt(document.getElementById("priceSelect").value) || 0;
+      renderDeals();
+    }
 
     function renderDeals() {
       if (typeof deals === "undefined" || !deals.length) {
-        grid.innerHTML = "<p style='color:#94a3b8; text-align:center; grid-column:1/-1;'>يرجى تشغيل bot.py أولاً...</p>";
+        grid.innerHTML = `<div class="no-results">جاري تحميل أحدث صفقات المتاجر المصرية...</div>`;
         return;
       }
 
-      countBadge.innerText = `● تم تحميل أكثر من ${deals.length} صفقة مخفضة ومباشرة`;
-
       grid.innerHTML = "";
-      const filtered = currentCategory === "all" ? deals : deals.filter(d => d.category === currentCategory);
+
+      // تصفية حسب القسم وحسب السعر الأدنى المحدد
+      let filtered = deals.filter(deal => {
+        let matchCat = (currentCategory === "all" || deal.category === currentCategory);
+        let matchPrice = (deal.discount_val >= 0); // شرط أساسي
+        
+        // استخراج القيمة الرقمية للسعر الجديد للمقارنة
+        let rawPrice = parseInt(String(deal.newPrice).replace(/[^\d]/g, "")) || 0;
+        let matchMinPrice = (rawPrice >= minPriceLimit);
+
+        return matchCat && matchMinPrice;
+      });
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `<div class="no-results">عذراً، لا توجد عروض تطابق هذا الفلتر حالياً. جرب اختيار سعر أقل أو قسم آخر.</div>`;
+        countBadge.innerText = `● 0 عرض متاح`;
+        return;
+      }
+
+      countBadge.innerText = `● يعرض ${filtered.length} عرض متوفر`;
 
       filtered.forEach(deal => {
         const card = document.createElement("div");
         card.className = "card";
-        card.onclick = () => showProduct(deal.id);
+        card.onclick = () => window.open(deal.productUrl, "_blank");
+
         card.innerHTML = `
           <span class="discount-tag">خصم ${deal.discount}</span>
           <span class="store-tag">${deal.store}</span>
-          <img src="${deal.image}" alt="${deal.title}">
+          <img src="${deal.image}" alt="${deal.title}" loading="lazy">
           <div class="card-body">
             <h3 class="card-title">${deal.title}</h3>
             <div class="prices">
               <span class="new-price">${deal.newPrice}</span>
               <span class="old-price">${deal.oldPrice}</span>
             </div>
-            <div class="view-btn">عرض التفاصيل والكمية 🔍</div>
+            <div class="view-btn">اقتنص العرض 🛒</div>
           </div>
         `;
         grid.appendChild(card);
       });
     }
 
-    function showProduct(id) {
-      const item = deals.find(d => d.id === id);
-      if (!item) return;
+    // تشغيل العرض عند تحميل الملف
+    window.onload = () => {
+      renderDeals();
+    };
 
-      productDetails.innerHTML = `
-        <div class="image-side">
-          <img src="${item.image}" alt="${item.title}">
-        </div>
-        <div class="details-side">
-          <div><span class="store-badge">متوفر لدى: ${item.store}</span></div>
-          <h1 class="product-title">${item.title}</h1>
-          <div class="price-box">
-            <span class="new-p">${item.newPrice}</span>
-            <span class="old-p">${item.oldPrice}</span>
-            <span class="disc-tag">وفر ${item.discount}</span>
-          </div>
-          <div class="stock-box">
-            ⏳ متبقي في مخزن العرض: ${item.stock} قطع فقط بالسعر المخفض
-          </div>
-          <div class="description">${item.description}</div>
-          <a href="${item.productUrl}" target="_blank" rel="noopener noreferrer" class="buy-btn">
-            اقتنص العرض الآن ⚡ (الشراء المباشر من ${item.store})
-          </a>
-        </div>
-      `;
+    // التحديث التلقائي كل 30 دقيقة دون إعادة تحميل الصفحة
+    setInterval(() => {
+      const oldScript = document.getElementById("dealsScript");
+      if (oldScript) oldScript.remove();
 
-      homeView.style.display = "none";
-      productView.style.display = "block";
-      window.scrollTo(0, 0);
-    }
-
-    function showHome() {
-      productView.style.display = "none";
-      homeView.style.display = "block";
-    }
-
-    catButtons.forEach(btn => {
-      btn.addEventListener("click", () => {
-        catButtons.forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-        currentCategory = btn.getAttribute("data-cat");
+      const newScript = document.createElement("script");
+      newScript.id = "dealsScript";
+      newScript.src = "deals.js?t=" + new Date().getTime();
+      newScript.onload = () => {
         renderDeals();
-      });
-    });
-
-    renderDeals();
+        console.log("تم تحديث شاشة العروض تلقائياً!");
+      };
+      document.body.appendChild(newScript);
+    }, 1800000);
   </script>
 </body>
 </html>
