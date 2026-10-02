@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>تفاصيل العرض | رادار الخصومات</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; }
+    body { background-color: #0b0f19; color: #f1f5f9; padding: 30px 15px; }
+    .container { max-width: 900px; margin: 0 auto; }
+    .back-link { display: inline-block; color: #94a3b8; text-decoration: none; font-weight: 700; margin-bottom: 20px; font-size: 15px; }
+    .back-link:hover { color: #ef4444; }
+    
+    .product-box { background: #111827; border: 1px solid #1f2937; border-radius: 20px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+    @media(min-width: 768px) {
+      .product-box { flex-direction: row; }
+    }
+    
+    .image-side { flex: 1; background: #fff; padding: 30px; display: flex; align-items: center; justify-content: center; }
+    .image-side img { max-width: 100%; max-height: 380px; object-fit: contain; }
+    
+    .details-side { flex: 1.2; padding: 35px; display: flex; flex-direction: column; }
+    .store-badge { display: inline-block; background: #1e293b; color: #38bdf8; padding: 6px 14px; border-radius: 8px; font-size: 14px; font-weight: 800; margin-bottom: 12px; }
+    .product-title { font-size: 22px; font-weight: 800; line-height: 1.5; margin-bottom: 15px; color: #fff; }
+    
+    .price-box { display: flex; align-items: baseline; gap: 15px; margin: 15px 0; }
+    .new-p { font-size: 32px; font-weight: 900; color: #38bdf8; }
+    .old-p { font-size: 18px; color: #64748b; text-decoration: line-through; }
+    .disc-tag { background: #ef4444; color: white; padding: 4px 10px; border-radius: 6px; font-weight: 800; font-size: 14px; }
+    
+    .stock-box { background: rgba(245, 158, 11, 0.1); border: 1px solid #f59e0b; color: #f59e0b; padding: 10px 15px; border-radius: 10px; font-weight: 700; margin-bottom: 20px; }
+    .description { background: #1e293b; padding: 15px; border-radius: 10px; color: #cbd5e1; font-size: 14px; line-height: 1.7; margin-bottom: 25px; }
+    
+    .buy-btn { display: block; text-align: center; background: #ef4444; color: white; text-decoration: none; padding: 16px; border-radius: 12px; font-size: 20px; font-weight: 900; box-shadow: 0 5px 20px rgba(239, 68, 68, 0.4); transition: 0.2s; }
+    .buy-btn:hover { background: #dc2626; transform: translateY(-2px); }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <a href="index.html" class="back-link">← العودة لكل العروض والخصومات</a>
+    
+    <div class="product-box" id="productBox">
+      <!-- يتم ملء البيانات عبر الكود بالأسفل -->
+    </div>
+  </div>
+
+  <script src="deals.js"></script>
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const prodId = parseInt(urlParams.get("id"));
+
+    const box = document.getElementById("productBox");
+
+    if (typeof deals !== "undefined" && deals.length > 0) {
+      const item = deals.find(d => d.id === prodId);
+
+      if (item) {
+        document.title = item.title;
+        box.innerHTML = `
+          <div class="image-side">
+            <img src="${item.image}" alt="${item.title}">
+          </div>
+          <div class="details-side">
+            <div><span class="store-badge">متوفر لدى: ${item.store}</span></div>
+            <h1 class="product-title">${item.title}</h1>
+            
+            <div class="price-box">
+              <span class="new-p">${item.newPrice}</span>
+              <span class="old-p">${item.oldPrice}</span>
+              <span class="disc-tag">وفر ${item.discount}</span>
+            </div>
+
+            <div class="stock-box">
+              ⏳ متبقي في مخزن العرض: ${item.stock} قطع فقط بالسعر المخفض
+            </div>
+
+            <div class="description">
+              ${item.description}
+            </div>
+
+            <a href="${item.productUrl}" target="_blank" rel="noopener noreferrer" class="buy-btn">
+              اقتنص العرض الآن ⚡ (الشراء من ${item.store})
+            </a>
+          </div>
+        `;
+      } else {
+        box.innerHTML = "<p style='padding:40px; text-align:center;'>لم يتم العثور على المنتج المطلوب.</p>";
+      }
+    } else {
+      box.innerHTML = "<p style='padding:40px; text-align:center;'>يرجى تشغيل bot.py لتحديث البيانات.</p>";
+    }
+  </script>
+</body>
+</html>
