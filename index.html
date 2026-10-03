@@ -249,7 +249,7 @@
       background: var(--primary-dark);
     }
 
-    /* نافذة التفاصيل */
+    /* تصميم النافذة المنبثقة للتفاصيل */
     .modal-overlay {
       position: fixed;
       top: 0;
@@ -374,16 +374,15 @@
   <div class="controls-container">
     <div class="categories" id="categoryButtons">
       <button class="cat-btn active" onclick="filterCategory('all', this)">الكل</button>
-      <button class="cat-btn" onclick="filterCategory('سوبرماركت', this)">سوبرماركت</button>
       <button class="cat-btn" onclick="filterCategory('هواتف', this)">هواتف</button>
       <button class="cat-btn" onclick="filterCategory('أجهزة كهربائية', this)">أجهزة كهربائية</button>
       <button class="cat-btn" onclick="filterCategory('شاشات', this)">شاشات</button>
       <button class="cat-btn" onclick="filterCategory('إلكترونيات', this)">إلكترونيات</button>
-      <button class="cat-btn" onclick="filterCategory('ملابس حريمي', this)">ملابس حريمي</button>
-      <button class="cat-btn" onclick="filterCategory('ملابس رجالي', this)">ملابس رجالي</button>
       <button class="cat-btn" onclick="filterCategory('أحذية', this)">أحذية</button>
+      <button class="cat-btn" onclick="filterCategory('ملابس', this)">ملابس</button>
     </div>
 
+    <!-- فلتر السعر المحدث (أقل من) حتى 50,000 ج.م -->
     <div class="price-filter">
       <label for="priceSelect">فلتر السعر (أقل من):</label>
       <select id="priceSelect" onchange="changePriceFilter()">
@@ -426,7 +425,7 @@
           </div>
         </div>
         <p style="color: var(--text-muted); font-size: 0.9rem;">
-          💡 تم فحص هذا العرض والتأكد من توفره. اضغط الزر أدناه للانتقال لصفحة الشراء الرسمية.
+          💡 تم فحص هذا العرض والتأكد من توفره في المتاجر المصرية. اضغط الزر أدناه للانتقال لصفحة الشراء الرسمية.
         </p>
       </div>
       <div class="modal-footer">
@@ -438,7 +437,7 @@
   <script id="dealsScript" src="deals.js?t=1"></script>
   <script>
     let currentCategory = "all";
-    let maxPriceLimit = 999999;
+    let maxPriceLimit = 999999; // الافتراضي عرض الكل
     const grid = document.getElementById("dealsGrid");
     const countBadge = document.getElementById("dealsCountBadge");
 
@@ -483,18 +482,17 @@
       grid.innerHTML = "";
 
       let filtered = deals.filter(deal => {
-        let dealCat = (deal.category || "").trim();
-        // مطابقة مرنة تضمن ظهور المنتجات بسلاسة تامة في أقسامها
-        let matchCat = (currentCategory === "all" || dealCat === currentCategory || dealCat.includes(currentCategory) || currentCategory.includes(dealCat));
-        
+        let matchCat = (currentCategory === "all" || deal.category === currentCategory);
         let rawPrice = parseInt(String(deal.newPrice).replace(/[^\d]/g, "")) || 0;
+        
+        // شرط فلتر السعر (أقل من الحد الأقصى المختار)
         let matchMaxPrice = (rawPrice <= maxPriceLimit);
 
         return matchCat && matchMaxPrice;
       });
 
       if (filtered.length === 0) {
-        grid.innerHTML = `<div class="no-results">عذراً، لا توجد عروض مطابقة لهذا الفلتر أو القسم حالياً. جاري تحديثها قريباً.</div>`;
+        grid.innerHTML = `<div class="no-results">عذراً، لا توجد عروض أقل من هذا السعر حالياً في هذا القسم.</div>`;
         countBadge.innerText = `● 0 عرض متاح`;
         return;
       }
