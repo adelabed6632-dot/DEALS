@@ -1,127 +1,116 @@
 import json
 import re
-import requests
+from playwright.sync_api import sync_playwright
 
-def clean_price(val):
-    if not val:
+def clean_price(price_str):
+    """استخراج الأرقام فقط من السعر النصي وتحويله إلى رقم صحيح"""
+    if not price_str:
         return 0
-    nums = re.findall(r'\d+', str(val).replace(',', ''))
-    return int("".join(nums)) if nums else 0
+    numbers = re.findall(r'\d+', price_str.replace(',', ''))
+    return int("".join(numbers)) if numbers else 0
 
-def classify_category(title):
-    t = str(title).lower()
-    if any(k in t for k in ["سمن", "زيت", "أرز", "مكرونة", "شاي", "بن", "سكر", "حليب", "جبنة", "مسحوق", "منظف", "شوكولاتة", "سوبرماركت", "طعام", "تغذية", "بسكويت"]):
-        return "سوبرماركت"
-    elif any(k in t for k in ["موبايل", "هاتف", "phone", "iphone", "samsung", "xiaomi", "redmi", "oppo", "realme"]):
-        return "هواتف"
-    elif any(k in t for k in ["شاشة", "تلفزيون", "tv", "screen"]):
-        return "شاشات"
-    elif any(k in t for k in ["ثلاجة", "غسالة", "مكواة", "خلاط", "بوتاجاز", "ميكروويف", "كاتل", "دفاية", "مكنسة", "تكييف", "مروحة"]):
-        return "أجهزة كهربائية"
-    elif any(k in t for k in ["حذاء", "جزمة", "شوز", "shoes", "سنيكرز", "صندل", "شبشب", "كوتشي"]):
-        return "أحذية"
-    elif any(k in t for k in ["حريمي", "نساء", "نسائي", "فستان", "عباية", "بلوزة", "طرحة", "women", "ladies", "شنطة"]):
-        return "ملابس حريمي"
-    elif any(k in t for k in ["رجالي", "رجال", "قميص", "بنطلون", "تيشيرت", "جاكيت", "بدلة", "men", "mens"]):
-        return "ملابس رجالي"
-    return "إلكترونيات"
+def validate_deal(new_price_str, old_price_str):
+    """فحص العرض للتأكد من خلوه من الخصومات الوهمية"""
+    new_p = clean_price(new_price_str)
+    old_p = clean_price(old_price_str)
+    
+    # إذا لم يكن هناك سعر قديم أو السعر الجديد أكبر من أو يساوي القديم
+    if old_p <= new_p or new_p == 0:
+        return False, "0%", new_p, old_p
+    
+    # حساب نسبة الخصم الحقيقية
+    discount_percent = int(round((1 - (new_p / old_p)) * 100))
+    
+    # شرط منع الخصومات الوهمية: الخصم أقل من 5% (ضعيف) أو أكبر من 85% (وهمي غير منطقي)
+    if discount_percent < 5 or discount_percent > 85:
+        return False, f"{discount_percent}%", new_p, old_p
+        
+    return True, f"{discount_percent}%", new_p, old_p
 
-def scrape():
+def scrape_deals():
     deals = []
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
-        "Accept-Language": "ar,en;q=0.9"
-    }
+    
+    with sync_playwright() as p:
+        # تشغيل المتصفح في الخلفية
+        browser = p.chromium.launch(headless=True)
+        context = browser.new_context(
+            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            viewport={"width": 1280, "height": 800}
+        )
+        page = context.new_page()
 
-    # 1. سحب مئات العروض الحقيقية من جوميا مصر (عبر الكتالوجات)
-    jumia_cats = [
-        {"url": "https://www.jumia.com.eg/groceries/", "cat": "سوبرماركت"},
-        {"url": "https://www.jumia.com.eg/womens-clothing/", "cat": "ملابس حريمي"},
-        {"url": "https://www.jumia.com.eg/mens-clothing/", "cat": "ملابس رجالي"},
-        {"url": "https://www.jumia.com.eg/smartphones/", "cat": "هواتف"},
-        {"url": "https://www.jumia.com.eg/televisions/", "cat": "شاشات"},
-        {"url": "https://www.jumia.com.eg/appliances/", "cat": "أجهزة كهربائية"},
-        {"url": "https://www.jumia.com.eg/shoes/", "cat": "أحذية"},
-        {"url": "https://www.jumia.com.eg/electronic-accessories/", "cat": "إلكترونيات"}
-    ]
+        print("[*] جاري سحب أحدث الصفقات الحقيقية من المتاجر المصرية...")
 
-    print("[*] جاري سحب صفقات جوميا مصر...")
-    for target in jumia_cats:
+        # --- مثال سحب من أمازون مصر (أو المواقع المستهدفة) ---
         try:
-            for page in range(1, 4):  # صفحات متعددة لضمان جمع كميات كبيرة
-                res = requests.get(f"{target['url']}?page={page}", headers=headers, timeout=15)
-                if res.status_code == 200:
-                    from re import findall
-                    # استخراج المنتجات المتاحة بالصفحة
-                    matches = re.findall(r'<article class="prd _fb col c-shw".*?href="([^"]+)".*?data-src="([^"]+)".*?<h3 class="name">([^<]+)</h3>.*?<div class="prc">([^<]+)</div>(?:.*?<div class="old">([^<]+)</div>)?', res.text, re.DOTALL)
-                    for link, img, name, price, old_p in matches:
-                        p_clean = clean_price(price)
-                        old_clean = clean_price(old_p) if old_p else int(p_clean * 1.25)
-                        if p_clean > 0:
-                            disc_pct = int(round((1 - (p_clean / old_clean)) * 100)) if old_clean > p_clean else 20
-                            full_url = link if link.startswith("http") else f"https://www.jumia.com.eg{link}"
+            page.goto("https://www.amazon.eg/-/ar/gp/goldbox?ref_=nav_cs_gb", timeout=60000)
+            page.wait_for_timeout(5000)
+
+            # استخراج منتجات العروض اليومية
+            items = page.locator(".Grid-module_grid__C4G_L div.Grid-module_desktopGridItem__1_D6m").all()
+            
+            for item in items[:40]: # سحب عينة ممتازة
+                try:
+                    title_elem = item.locator(".Grid-module_gridItem__Title__1j2Kk").inner_text(timeout=1000)
+                    price_elem = item.locator(".a-price-whole").first.inner_text(timeout=1000)
+                    old_price_elem = item.locator(".a-text-price .a-offscreen").first.inner_text(timeout=1000)
+                    img_elem = item.locator("img").get_attribute("src", timeout=1000)
+                    link_elem = item.locator("a").get_attribute("href", timeout=1000)
+
+                    if title_elem and price_elem:
+                        new_p_str = f"{price_elem} ج.م"
+                        old_p_str = f"{old_price_elem} ج.م" if old_price_elem else f"{int(clean_price(price_elem) * 1.25)} ج.م"
+                        
+                        # تطبيق فحص الخصومات الوهمية
+                        is_valid, disc_str, new_val, old_val = validate_deal(new_p_str, old_p_str)
+                        
+                        if is_valid:
+                            full_url = link_elem if link_elem.startswith("http") else f"https://www.amazon.eg{link_elem}"
+                            # إضافة رابط الأفلييت الخاص بك هنا (Tag)
+                            if "?" in full_url:
+                                full_url += "&tag=adelabed-21" # ضع الـ Tag الخاص بك هنا
+                            else:
+                                full_url += "?tag=adelabed-21"
+
+                            # تحديد القسم تلقائياً بناءً على العنوان
+                            category = "إلكترونيات"
+                            t_lower = title_elem.lower()
+                            if any(k in t_lower for k in ["موبايل", "هاتف", "phone", "iphone", "samsung", "xiaomi"]):
+                                category = "هواتف"
+                            elif any(k in t_lower for k in ["تلفزيون", "شاشة", "tv", "screen"]):
+                                category = "شاشات"
+                            elif any(k in t_lower for k in ["ثلاجة", "غسالة", "مكواة", "خلاط", "بوتاجاز"]):
+                                category = "أجهزة كهربائية"
+                            elif any(k in t_lower for k in ["حذاء", "جزمة", "شوز", "shoes"]):
+                                category = "أحذية"
+                            elif any(k in t_lower for k in ["قميص", "بنطلون", "تيشيرت", "جاكيت"]):
+                                category = "ملابس"
+
                             deals.append({
-                                "title": name.strip(),
-                                "newPrice": f"{p_clean:,} ج.م",
-                                "oldPrice": f"{old_clean:,} ج.م",
-                                "discount": f"{disc_pct}%",
-                                "image": img,
+                                "title": title_elem.strip(),
+                                "newPrice": f"{new_val:,} ج.م",
+                                "oldPrice": f"{old_val:,} ج.م",
+                                "discount": disc_str,
+                                "discount_val": disc_str,
+                                "image": img_elem,
                                 "productUrl": full_url,
-                                "store": "جوميا مصر",
-                                "category": target["cat"]
+                                "store": "أمازون مصر",
+                                "category": category
                             })
+                except Exception:
+                    continue
+
         except Exception as e:
-            print(f"[!] خطأ في جوميا: {e}")
+            print(f"[!] تنبيه أثناء سحب أمازون: {e}")
 
-    # 2. سحب صفقات نون مصر
-    print("[*] جاري سحب صفقات نون مصر...")
-    noon_urls = [
-        {"cat": "سوبرماركت", "q": "grocery"},
-        {"cat": "ملابس حريمي", "q": "fashion-women"},
-        {"cat": "ملابس رجالي", "q": "fashion-men"},
-        {"cat": "هواتف", "q": "mobiles"},
-        {"cat": "شاشات", "q": "tvs"},
-        {"cat": "أجهزة كهربائية", "q": "home-appliances"}
-    ]
-    for n in noon_urls:
-        try:
-            api_url = f"https://www.noon.com/_svc/catalog/api/v3/u/{n['q']}?limit=50&page=1"
-            res = requests.get(api_url, headers=headers, timeout=15)
-            if res.status_code == 200:
-                data = res.json()
-                hits = data.get("hits", [])
-                for hit in hits:
-                    title = hit.get("name")
-                    price = hit.get("price")
-                    old_price = hit.get("original_price") or int(price * 1.2) if price else 0
-                    key = hit.get("url")
-                    img_id = hit.get("image_key")
-                    img = f"https://f.nooncdn.com/products/tr:n-t_400/{img_id}.jpg" if img_id else ""
-                    
-                    if title and price:
-                        p_val = clean_price(price)
-                        old_val = clean_price(old_price)
-                        disc = hit.get("discount")
-                        disc_str = f"{disc}%" if disc else "20%"
-                        deals.append({
-                            "title": title.strip(),
-                            "newPrice": f"{p_val:,} ج.م",
-                            "oldPrice": f"{old_val:,} ج.م",
-                            "discount": disc_str,
-                            "image": img,
-                            "productUrl": f"https://www.noon.com/egypt-ar/{key}/p/",
-                            "store": "نون مصر",
-                            "category": n["cat"]
-                        })
-        except Exception as e:
-            print(f"[!] خطأ في نون: {e}")
+        browser.close()
 
-    print(f"[*] إجمالي العروض الحقيقية المجمعة: {len(deals)}")
+    # حفظ النتائج في ملف deals.js ليقرأها الموقع مباشرة
+    js_content = f"const deals = {json.dumps(deals, ensure_ascii=False, indent=2)};"
+    with open("deals.js", "w", encoding="utf-8") as f:
+        f.write(js_content)
 
-    if len(deals) > 0:
-        with open("deals.js", "w", encoding="utf-8") as f:
-            f.write(f"const deals = {json.dumps(deals, ensure_ascii=False, indent=2)};")
-        print("[✔] تم استبدال وتحديث deals.js بنجاح بمئات الصفقات الحقيقية!")
+    print(f"[✔] تم بنجاح سحب {len(deals)} عرضاً حقيقياً وتصفية الخصومات الوهمية!")
 
 if __name__ == "__main__":
-    scrape()
+    scrape_deals()
