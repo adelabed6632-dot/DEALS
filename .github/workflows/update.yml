@@ -22,9 +22,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install playwright
-          playwright install --with-deps chromium
+          pip install requests
 
       - name: Run scraper bot
         run: python bot.py
@@ -34,4 +32,4 @@ jobs:
           git config --global user.name 'DealsBot'
           git config --global user.email 'bot@deals.local'
           git add deals.js
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto update deals [skip ci]" && git push)
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Update real deals [skip ci]" && git push)
