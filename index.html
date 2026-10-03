@@ -372,20 +372,18 @@
   </header>
 
   <div class="controls-container">
-    <!-- الأقسام المحدثة -->
     <div class="categories" id="categoryButtons">
       <button class="cat-btn active" onclick="filterCategory('all', this)">الكل</button>
-      <button class="cat-btn" onclick="filterCategory('سوبرماركت', this)">سوبرماركت 🛒</button>
+      <button class="cat-btn" onclick="filterCategory('سوبرماركت', this)">سوبرماركت</button>
       <button class="cat-btn" onclick="filterCategory('هواتف', this)">هواتف</button>
       <button class="cat-btn" onclick="filterCategory('أجهزة كهربائية', this)">أجهزة كهربائية</button>
       <button class="cat-btn" onclick="filterCategory('شاشات', this)">شاشات</button>
       <button class="cat-btn" onclick="filterCategory('إلكترونيات', this)">إلكترونيات</button>
-      <button class="cat-btn" onclick="filterCategory('ملابس حريمي', this)">ملابس حريمي 👗</button>
-      <button class="cat-btn" onclick="filterCategory('ملابس رجالي', this)">ملابس رجالي 👔</button>
+      <button class="cat-btn" onclick="filterCategory('ملابس حريمي', this)">ملابس حريمي</button>
+      <button class="cat-btn" onclick="filterCategory('ملابس رجالي', this)">ملابس رجالي</button>
       <button class="cat-btn" onclick="filterCategory('أحذية', this)">أحذية</button>
     </div>
 
-    <!-- فلتر السعر (أقل من) -->
     <div class="price-filter">
       <label for="priceSelect">فلتر السعر (أقل من):</label>
       <select id="priceSelect" onchange="changePriceFilter()">
@@ -428,7 +426,7 @@
           </div>
         </div>
         <p style="color: var(--text-muted); font-size: 0.9rem;">
-          💡 تم فحص هذا العرض والتأكد من توفره في المتاجر المصرية. اضغط الزر أدناه للانتقال لصفحة الشراء الرسمية.
+          💡 تم فحص هذا العرض والتأكد من توفره. اضغط الزر أدناه للانتقال لصفحة الشراء الرسمية.
         </p>
       </div>
       <div class="modal-footer">
@@ -486,7 +484,9 @@
 
       let filtered = deals.filter(deal => {
         let dealCat = (deal.category || "").trim();
-        let matchCat = (currentCategory === "all" || dealCat === currentCategory);
+        // مطابقة مرنة تضمن ظهور المنتجات بسلاسة تامة في أقسامها
+        let matchCat = (currentCategory === "all" || dealCat === currentCategory || dealCat.includes(currentCategory) || currentCategory.includes(dealCat));
+        
         let rawPrice = parseInt(String(deal.newPrice).replace(/[^\d]/g, "")) || 0;
         let matchMaxPrice = (rawPrice <= maxPriceLimit);
 
