@@ -8,15 +8,10 @@ def scrape_deals():
             browser = p.chromium.launch(headless=True)
             page = browser.new_page()
             page.goto("https://www.amazon.eg/-/ar/gp/goldbox", timeout=60000)
-            page.wait_for_timeout(5000)
+            page.wait_for_timeout(4000)
             
-            # التمرير لأسفل لضمان تحميل المنتجات
-            for _ in range(4):
-                page.mouse.wheel(0, 2000)
-                page.wait_for_timeout(1000)
-
             items = page.locator(".Grid-module_grid__C4G_L div.Grid-module_desktopGridItem__1_D6m").all()
-            for item in items[:60]:
+            for item in items[:40]:
                 try:
                     title = item.locator(".Grid-module_gridItem__Title__1j2Kk").inner_text(timeout=500)
                     price = item.locator(".a-price-whole").first.inner_text(timeout=500)
@@ -30,28 +25,25 @@ def scrape_deals():
                         else:
                             full_url += "?tag=adelabed-21"
                             
-                        # تصنيف دقيق وواسع لكل الأقسام
                         cat = "إلكترونيات"
                         t_low = title.lower()
-                        if any(k in t_low for k in ["سمن", "زيت", "سكر", "شاي", "أرز", "مكرونة", "جبنة", "لبن", "حليب", "سوبرماركت", "نسكافيه"]):
+                        if any(k in t_low for k in ["سمن", "زيت", "سكر", "شاي", "أرز", "مكرونة", "جبنة", "لبن", "سوبرماركت"]):
                             cat = "سوبرماركت"
-                        elif any(k in t_low for k in ["حريمي", "نساء", "نسائي", "فستان", "عباية", "بلوزة", "women", "ladies"]):
+                        elif any(k in t_low for k in ["حريمي", "نساء", "فستان", "عباية", "بلوزة"]):
                             cat = "ملابس حريمي"
-                        elif any(k in t_low for k in ["رجالي", "رجال", "قميص", "بنطلون", "تيشيرت", "men", "mens"]):
+                        elif any(k in t_low for k in ["رجالي", "قميص", "بنطلون", "تيشيرت"]):
                             cat = "ملابس رجالي"
-                        elif any(k in t_low for k in ["موبايل", "هاتف", "phone", "iphone", "samsung", "xiaomi"]):
+                        elif any(k in t_low for k in ["موبايل", "هاتف", "phone"]):
                             cat = "هواتف"
-                        elif any(k in t_low for k in ["تلفزيون", "شاشة", "tv", "screen"]):
+                        elif any(k in t_low for k in ["تلفزيون", "شاشة", "tv"]):
                             cat = "شاشات"
-                        elif any(k in t_low for k in ["ثلاجة", "غسالة", "مكواة", "خلاط", "بوتاجاز"]):
+                        elif any(k in t_low for k in ["ثلاجة", "غسالة", "خلاط"]):
                             cat = "أجهزة كهربائية"
-                        elif any(k in t_low for k in ["حذاء", "جزمة", "شوز", "shoes"]):
-                            cat = "أحذية"
                             
                         deals.append({
                             "title": title.strip(),
                             "newPrice": f"{price} ج.م",
-                            "oldPrice": f"{int(int(price.replace(',', '')) * 1.35):,} ج.م",
+                            "oldPrice": f"{int(int(price.replace(',', '')) * 1.3):,} ج.م",
                             "discount": "25%",
                             "image": img,
                             "productUrl": full_url,
@@ -64,18 +56,9 @@ def scrape_deals():
     except Exception as e:
         print(f"Error: {e}")
 
-    # شبكة أمان موسعة لتغطية جميع الأقسام فوراً وبشكل غني إذا لم يسحب البوت كفاية
-    if len(deals) < 10:
-        deals = [
-            {"title": "عرض السلع والزيوت الأساسية - سوبرماركت أمازون", "newPrice": "149 ج.م", "oldPrice": "220 ج.م", "discount": "32%", "image": "https://m.media-amazon.com/images/I/61lzVbyZgZL._AC_SX679_.jpg", "productUrl": "https://www.amazon.eg/-/ar/gp/goldbox?tag=adelabed-21", "store": "أمازون مصر", "category": "سوبرماركت"},
-            {"title": "كرتونة البيض ومنتجات الألبان الطازجة وتخفيضات اليوم", "newPrice": "180 ج.م", "oldPrice": "240 ج.م", "discount": "25%", "image": "https://m.media-amazon.com/images/I/71XN09jVqZL._AC_SX679_.jpg", "productUrl": "https://www.amazon.eg/-/ar/gp/goldbox?tag=adelabed-21", "store": "أمازون مصر", "category": "سوبرماركت"},
-            {"title": "ملابس حريمي عصرية وتخفيضات موسم الموضة النسائية", "newPrice": "350 ج.م", "oldPrice": "650 ج.م", "discount": "46%", "image": "https://m.media-amazon.com/images/I/61lzVbyZgZL._AC_SX679_.jpg", "productUrl": "https://www.amazon.eg/-/ar/gp/goldbox?tag=adelabed-21", "store": "أمازون مصر", "category": "ملابس حريمي"},
-            {"title": "تشكيلة ملابس رجالي كاجوال شتوية وصيفية ممتازة", "newPrice": "399 ج.م", "oldPrice": "750 ج.م", "discount": "47%", "image": "https://m.media-amazon.com/images/I/61lzVbyZgZL._AC_SX679_.jpg", "productUrl": "https://www.amazon.eg/-/ar/gp/goldbox?tag=adelabed-21", "store": "أمازون مصر", "category": "ملابس رجالي"},
-            {"title": "هاتف محمول ذكي بشريحتين ودعم شبكات الجيل الرابع", "newPrice": "4,999 ج.م", "oldPrice": "6,500 ج.م", "discount": "23%", "image": "https://m.media-amazon.com/images/I/61lzVbyZgZL._AC_SX679_.jpg", "productUrl": "https://www.amazon.eg/-/ar/gp/goldbox?tag=adelabed-21", "store": "أمازون مصر", "category": "هواتف"},
-            {"title": "شاشة عرض سمارت ليد بدقة عالية 4K مقاس 43 بوصة", "newPrice": "9,899 ج.م", "oldPrice": "13,500 ج.م", "discount": "27%", "image": "https://m.media-amazon.com/images/I/61lzVbyZgZL._AC_SX679_.jpg", "productUrl": "https://www.amazon.eg/-/ar/gp/goldbox?tag=adelabed-21", "store": "أمازون مصر", "category": "شاشات"},
-            {"title": "خلاط كهربائي متعدد السرعات مع مطحنة للتوابل", "newPrice": "899 ج.م", "oldPrice": "1,299 ج.م", "discount": "31%", "image": "https://m.media-amazon.com/images/I/61lzVbyZgZL._AC_SX679_.jpg", "productUrl": "https://www.amazon.eg/-/ar/gp/goldbox?tag=adelabed-21", "store": "أمازون مصر", "category": "أجهزة كهربائية"},
-            {"title": "حذاء رياضي رجالي كاجوال للجري والمشي المريح", "newPrice": "450 ج.م", "oldPrice": "850 ج.م", "discount": "47%", "image": "https://m.media-amazon.com/images/I/61lzVbyZgZL._AC_SX679_.jpg", "productUrl": "https://www.amazon.eg/-/ar/gp/goldbox?tag=adelabed-21", "store": "أمازون مصر", "category": "أحذية"}
-        ]
+    # لو حصل خطأ في السحب، نضمن عدم تصفير الموقع أبداً ونحافظ على المنتجات الأساسية
+    if not deals:
+        return
 
     with open("deals.js", "w", encoding="utf-8") as f:
         f.write(f"const deals = {json.dumps(deals, ensure_ascii=False, indent=2)};")
