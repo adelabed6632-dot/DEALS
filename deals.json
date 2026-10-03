@@ -1,23 +1,72 @@
-[
+const deals = [
   {
-    "title": "سماعة رأس لاسلكية عازلة للضوضاء",
-    "price": "699 ج.م",
-    "image": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&q=80",
-    "url": "https://www.amazon.eg/dp/B08XJG8B5C",
-    "link": "https://www.amazon.eg/dp/B08XJG8B5C?tag=deals-21"
+    "title": "عروض السلع والزيوت الأساسية - سوبرماركت أمازون مصر",
+    "newPrice": "149 ج.م",
+    "oldPrice": "220 ج.م",
+    "discount": "32%",
+    "image": "https://m.media-amazon.com/images/I/61lzVbyZgZL._AC_SX679_.jpg",
+    "productUrl": "https://www.amazon.eg/-/ar/gp/goldbox?tag=adelabed-21",
+    "store": "أمازون مصر",
+    "category": "سوبرماركت"
   },
   {
-    "title": "ساعة ذكية رياضية ببطارية أسبوع",
-    "price": "450 ج.م",
-    "image": "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&q=80",
-    "url": "https://www.amazon.eg/dp/B09Y88B44X",
-    "link": "https://www.amazon.eg/dp/B09Y88B44X?tag=deals-21"
+    "title": "ملابس حريمي عصرية وتخفيضات موسم الموضة النسائية",
+    "newPrice": "350 ج.م",
+    "oldPrice": "650 ج.م",
+    "discount": "46%",
+    "image": "https://m.media-amazon.com/images/I/61lzVbyZgZL._AC_SX679_.jpg",
+    "productUrl": "https://www.amazon.eg/-/ar/gp/goldbox?tag=adelabed-21",
+    "store": "أمازون مصر",
+    "category": "ملابس حريمي"
   },
   {
-    "title": "ماكينة قهوة اسبريسو احترافية",
-    "price": "1,850 ج.م",
-    "image": "https://images.unsplash.com/photo-1517668808822-9ebb02f2a0e6?w=400&q=80",
-    "url": "https://www.amazon.eg/dp/B07VXYZ123",
-    "link": "https://www.amazon.eg/dp/B07VXYZ123?tag=deals-21"
+    "title": "تشكيلة ملابس رجالي كاجوال شتوية وصيفية ممتازة",
+    "newPrice": "399 ج.م",
+    "oldPrice": "750 ج.م",
+    "discount": "47%",
+    "image": "https://m.media-amazon.com/images/I/61lzVbyZgZL._AC_SX679_.jpg",
+    "productUrl": "https://www.amazon.eg/-/ar/gp/goldbox?tag=adelabed-21",
+    "store": "أمازون مصر",
+    "category": "ملابس رجالي"
+  },
+  {
+    "title": "هاتف محمول ذكي بشريحتين ودعم شبكات الجيل الرابع",
+    "newPrice": "4,999 ج.م",
+    "oldPrice": "6,500 ج.م",
+    "discount": "23%",
+    "image": "https://m.media-amazon.com/images/I/61lzVbyZgZL._AC_SX679_.jpg",
+    "productUrl": "https://www.amazon.eg/-/ar/gp/goldbox?tag=adelabed-21",
+    "store": "أمازون مصر",
+    "category": "هواتف"
+  },
+  {
+    "title": "شاشة عرض سمارت ليد بدقة عالية 4K مقاس 43 بوصة",
+    "newPrice": "9,899 ج.م",
+    "oldPrice": "13,500 ج.م",
+    "discount": "27%",
+    "image": "https://m.media-amazon.com/images/I/61lzVbyZgZL._AC_SX679_.jpg",
+    "productUrl": "https://www.amazon.eg/-/ar/gp/goldbox?tag=adelabed-21",
+    "store": "أمازون مصر",
+    "category": "شاشات"
+  },
+  {
+    "title": "خلاط كهربائي متعدد السرعات مع مطحنة للتوابل",
+    "newPrice": "899 ج.م",
+    "oldPrice": "1,299 ج.م",
+    "discount": "31%",
+    "image": "https://m.media-amazon.com/images/I/61lzVbyZgZL._AC_SX679_.jpg",
+    "productUrl": "https://www.amazon.eg/-/ar/gp/goldbox?tag=adelabed-21",
+    "store": "أمازون مصر",
+    "category": "أجهزة كهربائية"
+  },
+  {
+    "title": "حذاء رياضي رجالي كاجوال للجري والمشي المريح",
+    "newPrice": "450 ج.م",
+    "oldPrice": "850 ج.م",
+    "discount": "47%",
+    "image": "https://m.media-amazon.com/images/I/61lzVbyZgZL._AC_SX679_.jpg",
+    "productUrl": "https://www.amazon.eg/-/ar/gp/goldbox?tag=adelabed-21",
+    "store": "أمازون مصر",
+    "category": "أحذية"
   }
-]
+];
